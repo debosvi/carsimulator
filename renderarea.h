@@ -56,37 +56,34 @@
 #include <QPixmap>
 #include <QWidget>
 
+#include <QMap>
+
 //! [0]
 class RenderArea : public QWidget
 {
     Q_OBJECT
 
 public:
-    enum Shape { Line, Points, Polyline, Polygon, Rect, RoundedRect, Ellipse, Arc,
-                 Chord, Pie, Path, Text, Pixmap };
-
+    enum Styles { Garden, Road, End };
+    const qint8 maxStylesX=25;
+    const qint8 maxStylesY=18;
     explicit RenderArea(QWidget *parent = nullptr);
 
     QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
 
 public slots:
-    void setShape(Shape shape);
-    void setPen(const QPen &pen);
-    void setBrush(const QBrush &brush);
-    void setAntialiased(bool antialiased);
-    void setTransformed(bool transformed);
 
 protected:
+    void setStyle(const qint8 x, const qint8 y, const Styles s);
     void paintEvent(QPaintEvent *event) override;
 
 private:
-    Shape shape;
-    QPen pen;
-    QBrush brush;
-    bool antialiased;
-    bool transformed;
-    QPixmap pixmap;
+    QPixmap squareGreen;
+    QPixmap squareGray;
+    QPixmap squareEnding;
+
+    QMap<QPair<qint8, qint8>, Styles> styles;
 };
 //! [0]
 

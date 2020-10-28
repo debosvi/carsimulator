@@ -1,6 +1,7 @@
-<!DOCTYPE RCC><RCC version="1.0">
-<qresource>
-    <file>images/brick.png</file>
-    <file>images/qt-logo.png</file>
-</qresource>
+<RCC>
+    <qresource prefix="/">
+        <file>images/carre_arrivee.bmp</file>
+        <file>images/carre_gris.bmp</file>
+        <file>images/carre_vert.bmp</file>
+    </qresource>
 </RCC>

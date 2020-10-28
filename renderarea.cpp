@@ -50,6 +50,8 @@
 
 #include "renderarea.h"
 
+#include <QDebug>
+#include <QPair>
 #include <QPainter>
 #include <QPainterPath>
 
@@ -57,164 +59,111 @@
 RenderArea::RenderArea(QWidget *parent)
     : QWidget(parent)
 {
-    shape = Polygon;
-    antialiased = false;
-    transformed = false;
-    pixmap.load(":/images/qt-logo.png");
+    squareGreen.load(":/images/carre_vert.bmp");
+    squareGray.load(":/images/carre_gris.bmp");
+    squareEnding.load(":/images/carre_arrivee.bmp");
 
     setBackgroundRole(QPalette::Base);
-    setAutoFillBackground(true);
+//    setAutoFillBackground(true);
+
+
+    // tout en gazon
+    for(int i=0; i<maxStylesX; i++) {
+        for(int j=0; j<maxStylesY; j++) {
+           setStyle(i, j, Garden);
+        }
+    }
+
+    // lignes horizontales
+    for(int i=4; i<maxStylesX-4; i++) {
+        setStyle(i, 1, Road);
+        setStyle(i, 2, Road);
+        setStyle(i, maxStylesY-2, Road);
+        setStyle(i, maxStylesY-3, Road);
+    }
+
+    // lignes horizontales
+    for(int j=4; j<maxStylesY-4; j++) {
+        setStyle(1, j, Road);
+        setStyle(2, j, Road);
+        setStyle(maxStylesX-2, j, Road);
+        setStyle(maxStylesX-3, j, Road);
+    }
+
+    // coins
+    bool first=true;
+    for(int i=1; i<4; i++) {
+        for(int j=1; j<4; j++) {
+            if(first) { first=false; continue;}
+            setStyle(i, j, Road);
+            setStyle(maxStylesX-i-1, j, Road);
+            setStyle(i, maxStylesY-j-1, Road);
+            setStyle(maxStylesX-i-1, maxStylesY-j-1, Road);
+        }
+    }
+
+    // ligne d'arrivee
+    setStyle(18, maxStylesY-2, End);
+    setStyle(18, maxStylesY-3, End);
 }
 //! [0]
+
+void RenderArea::setStyle(const qint8 x, const qint8 y, const Styles s) {
+    QPair<qint8,qint8> pair;
+    pair.first = x;
+    pair.second = y;
+    styles[pair] = s;
+}
 
 //! [1]
 QSize RenderArea::minimumSizeHint() const
 {
-    return QSize(100, 100);
+    return QSize(800, 600);
 }
 //! [1]
 
 //! [2]
 QSize RenderArea::sizeHint() const
 {
-    return QSize(400, 200);
+    return QSize(800, 600);
 }
 //! [2]
-
-//! [3]
-void RenderArea::setShape(Shape shape)
-{
-    this->shape = shape;
-    update();
-}
-//! [3]
-
-//! [4]
-void RenderArea::setPen(const QPen &pen)
-{
-    this->pen = pen;
-    update();
-}
-//! [4]
-
-//! [5]
-void RenderArea::setBrush(const QBrush &brush)
-{
-    this->brush = brush;
-    update();
-}
-//! [5]
-
-//! [6]
-void RenderArea::setAntialiased(bool antialiased)
-{
-    this->antialiased = antialiased;
-    update();
-}
-//! [6]
-
-//! [7]
-void RenderArea::setTransformed(bool transformed)
-{
-    this->transformed = transformed;
-    update();
-}
-//! [7]
 
 //! [8]
 void RenderArea::paintEvent(QPaintEvent * /* event */)
 {
-    static const QPoint points[4] = {
-        QPoint(10, 80),
-        QPoint(20, 10),
-        QPoint(80, 30),
-        QPoint(90, 70)
-    };
-
-    QRect rect(10, 20, 80, 60);
-
-    QPainterPath path;
-    path.moveTo(20, 80);
-    path.lineTo(20, 30);
-    path.cubicTo(80, 0, 50, 50, 80, 80);
-
-    int startAngle = 20 * 16;
-    int arcLength = 120 * 16;
-//! [8]
-
 //! [9]
     QPainter painter(this);
-    painter.setPen(pen);
-    painter.setBrush(brush);
-    if (antialiased)
-        painter.setRenderHint(QPainter::Antialiasing, true);
-//! [9]
+//    painter.setPen(pen);
+//    painter.setBrush(brush);
+    for(int i=0; i<maxStylesX; i++) {
+        for(int j=0; j<maxStylesY; j++) {
+            QPixmap pix=squareGreen;
+            QPair<qint8,qint8> pair(i,j);
 
-//! [10]
-    for (int x = 0; x < width(); x += 100) {
-        for (int y = 0; y < height(); y += 100) {
-            painter.save();
-            painter.translate(x, y);
-//! [10] //! [11]
-            if (transformed) {
-                painter.translate(50, 50);
-                painter.rotate(60.0);
-                painter.scale(0.6, 0.9);
-                painter.translate(-50, -50);
+            switch(styles[pair]) {
+                case Road:
+//                    qDebug() << "x(" << i << "," << j <<"): Road";
+                    pix=squareGray;
+                    break;
+                case End:
+//                    qDebug() << "x(" << i << "," << j <<"): End";
+                    pix=squareEnding;
+                    break;
+                case Garden:
+//                    qDebug() << "x(" << i << "," << j <<"): Garden";
+                    pix=squareGreen;
+                    break;
+                default: qDebug() << "x(" << i << "," << j <<"): Unknown";
             }
-//! [11]
 
-//! [12]
-            switch (shape) {
-            case Line:
-                painter.drawLine(rect.bottomLeft(), rect.topRight());
-                break;
-            case Points:
-                painter.drawPoints(points, 4);
-                break;
-            case Polyline:
-                painter.drawPolyline(points, 4);
-                break;
-            case Polygon:
-                painter.drawPolygon(points, 4);
-                break;
-            case Rect:
-                painter.drawRect(rect);
-                break;
-            case RoundedRect:
-                painter.drawRoundedRect(rect, 25, 25, Qt::RelativeSize);
-                break;
-            case Ellipse:
-                painter.drawEllipse(rect);
-                break;
-            case Arc:
-                painter.drawArc(rect, startAngle, arcLength);
-                break;
-            case Chord:
-                painter.drawChord(rect, startAngle, arcLength);
-                break;
-            case Pie:
-                painter.drawPie(rect, startAngle, arcLength);
-                break;
-            case Path:
-                painter.drawPath(path);
-                break;
-            case Text:
-                painter.drawText(rect,
-                                 Qt::AlignCenter,
-                                 tr("Qt by\nThe Qt Company"));
-                break;
-            case Pixmap:
-                painter.drawPixmap(10, 10, pixmap);
-            }
-//! [12] //! [13]
-            painter.restore();
+            painter.drawPixmap(i*32, j*32, pix);
         }
     }
 
     painter.setRenderHint(QPainter::Antialiasing, false);
-    painter.setPen(palette().dark().color());
-    painter.setBrush(Qt::NoBrush);
-    painter.drawRect(QRect(0, 0, width() - 1, height() - 1));
+//    painter.setPen(palette().dark().color());
+//    painter.setBrush(Qt::NoBrush);
+//    painter.drawRect(QRect(0, 0, width() - 1, height() - 1));
 }
 //! [13]
