@@ -3,5 +3,6 @@
         <file>images/carre_arrivee.bmp</file>
         <file>images/carre_gris.bmp</file>
         <file>images/carre_vert.bmp</file>
+        <file>images/voiture.bmp</file>
     </qresource>
 </RCC>

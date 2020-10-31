@@ -82,8 +82,10 @@ private:
     QPixmap squareGreen;
     QPixmap squareGray;
     QPixmap squareEnding;
+    QPixmap squareCar;
 
     QMap<QPair<qint8, qint8>, Styles> styles;
+    QPair<qint8, qint8> posVoiture;
 };
 //! [0]
 

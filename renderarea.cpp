@@ -62,6 +62,7 @@ RenderArea::RenderArea(QWidget *parent)
     squareGreen.load(":/images/carre_vert.bmp");
     squareGray.load(":/images/carre_gris.bmp");
     squareEnding.load(":/images/carre_arrivee.bmp");
+    squareCar.load(":/images/voiture.bmp");
 
     setBackgroundRole(QPalette::Base);
 //    setAutoFillBackground(true);
@@ -82,7 +83,7 @@ RenderArea::RenderArea(QWidget *parent)
         setStyle(i, maxStylesY-3, Road);
     }
 
-    // lignes horizontales
+    // lignes verticales
     for(int j=4; j<maxStylesY-4; j++) {
         setStyle(1, j, Road);
         setStyle(2, j, Road);
@@ -105,6 +106,10 @@ RenderArea::RenderArea(QWidget *parent)
     // ligne d'arrivee
     setStyle(18, maxStylesY-2, End);
     setStyle(18, maxStylesY-3, End);
+
+    // position initiale voiture
+    posVoiture.first = 18;
+    posVoiture.second = maxStylesY-3;
 }
 //! [0]
 
@@ -133,9 +138,10 @@ QSize RenderArea::sizeHint() const
 void RenderArea::paintEvent(QPaintEvent * /* event */)
 {
 //! [9]
-    QPainter painter(this);
+     QPainter painter(this);
 //    painter.setPen(pen);
 //    painter.setBrush(brush);
+    // dessine circuit
     for(int i=0; i<maxStylesX; i++) {
         for(int j=0; j<maxStylesY; j++) {
             QPixmap pix=squareGreen;
@@ -160,6 +166,9 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
             painter.drawPixmap(i*32, j*32, pix);
         }
     }
+
+    // dessine voiture
+    painter.drawPixmap(32*posVoiture.first, 32*posVoiture.second, squareCar);
 
     painter.setRenderHint(QPainter::Antialiasing, false);
 //    painter.setPen(palette().dark().color());
