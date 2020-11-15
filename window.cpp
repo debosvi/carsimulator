@@ -67,4 +67,21 @@ Window::Window()
 
     setWindowTitle(tr("Car simulator"));
 }
+
+void Window::keyPressEvent ( QKeyEvent * event ) {
+    if ( event -> key () == Qt::Key_Up ) {
+        renderArea->doKey(RenderArea::Up);
+    }
+    if ( event -> key () == Qt::Key_Down ) {
+        renderArea->doKey(RenderArea::Down);
+    }
+    if ( event -> key () == Qt::Key_Left ) {
+        renderArea->doKey(RenderArea::Left);
+    }
+    if ( event -> key () == Qt::Key_Right ) {
+        renderArea->doKey(RenderArea::Right);
+    }
+}
+
+
 //! [10]

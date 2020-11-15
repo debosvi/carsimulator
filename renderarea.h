@@ -65,12 +65,15 @@ class RenderArea : public QWidget
 
 public:
     enum Styles { Garden, Road, End };
+    enum Action { Up, Down, Left, Right };
     const qint8 maxStylesX=25;
     const qint8 maxStylesY=18;
     explicit RenderArea(QWidget *parent = nullptr);
 
     QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
+
+    void doKey(const Action);
 
 public slots:
 
@@ -85,7 +88,8 @@ private:
     QPixmap squareCar;
 
     QMap<QPair<qint8, qint8>, Styles> styles;
-    QPair<qint8, qint8> posVoiture;
+    QPair<float, float> posVoiture;
+    float rotVoiture;
 };
 //! [0]
 

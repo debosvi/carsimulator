@@ -51,6 +51,7 @@
 #include "renderarea.h"
 
 #include <QDebug>
+#include <QtMath>
 #include <QPair>
 #include <QPainter>
 #include <QPainterPath>
@@ -108,8 +109,9 @@ RenderArea::RenderArea(QWidget *parent)
     setStyle(18, maxStylesY-3, End);
 
     // position initiale voiture
-    posVoiture.first = 18;
-    posVoiture.second = maxStylesY-3;
+    posVoiture.first = 18.5f;
+    posVoiture.second = maxStylesY-2.5f;
+    rotVoiture=0;
 }
 //! [0]
 
@@ -168,7 +170,11 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
     }
 
     // dessine voiture
-    painter.drawPixmap(32*posVoiture.first, 32*posVoiture.second, squareCar);
+    painter.save();
+    painter.translate(32*posVoiture.first, 32*posVoiture.second);
+    painter.rotate(rotVoiture);
+    painter.drawPixmap(-squareCar.size().width()/2,-squareCar.size().height()/2, squareCar);
+    painter.restore();
 
     painter.setRenderHint(QPainter::Antialiasing, false);
 //    painter.setPen(palette().dark().color());
@@ -176,3 +182,32 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
 //    painter.drawRect(QRect(0, 0, width() - 1, height() - 1));
 }
 //! [13]
+
+void RenderArea::doKey(const Action a) {
+    switch(a) {
+    case Up:
+    {
+        posVoiture.second-=0.1f;
+        float t=rotVoiture-10;
+        if (t<-90.0f)
+            rotVoiture=-90.0f;
+        else
+            rotVoiture=t;
+    }
+        break;
+    case Down:
+        posVoiture.second+=0.1f;
+        rotVoiture=90;
+        break;
+    case Right:
+        posVoiture.first+=0.1f;
+        rotVoiture=0;
+        break;
+    case Left:
+        posVoiture.first-=0.1f;
+        rotVoiture=180;
+        break;
+    default: break;
+    }
+    update();
+}

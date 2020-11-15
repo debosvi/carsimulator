@@ -63,6 +63,9 @@ class Window : public QWidget
 public:
     Window();
 
+protected :
+     void keyPressEvent ( QKeyEvent * ) ;
+
 private slots:
 
 private:

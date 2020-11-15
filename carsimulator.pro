@@ -1,4 +1,4 @@
-QT += widgets
+QT += widgets core
 requires(qtConfig(combobox))
 
 HEADERS       = renderarea.h \
