@@ -69,17 +69,13 @@ Window::Window()
 }
 
 void Window::keyPressEvent ( QKeyEvent * event ) {
-    if ( event -> key () == Qt::Key_Up ) {
-        renderArea->doKey(RenderArea::Up);
-    }
-    if ( event -> key () == Qt::Key_Down ) {
-        renderArea->doKey(RenderArea::Down);
-    }
-    if ( event -> key () == Qt::Key_Left ) {
-        renderArea->doKey(RenderArea::Left);
-    }
-    if ( event -> key () == Qt::Key_Right ) {
-        renderArea->doKey(RenderArea::Right);
+    switch(event->key()) {
+    case Qt::Key_Up: renderArea->doKey(RenderArea::Up); break;
+    case Qt::Key_Down: renderArea->doKey(RenderArea::Down); break;
+    case Qt::Key_Left: renderArea->doKey(RenderArea::Left); break;
+    case Qt::Key_Right: renderArea->doKey(RenderArea::Right); break;
+    case Qt::Key_Space: renderArea->doKey(RenderArea::Reset); break;
+    default: break;
     }
 }
 

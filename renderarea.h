@@ -58,6 +58,8 @@
 
 #include <QMap>
 
+#include "model.h"
+
 //! [0]
 class RenderArea : public QWidget
 {
@@ -65,9 +67,11 @@ class RenderArea : public QWidget
 
 public:
     enum Styles { Garden, Road, End };
-    enum Action { Up, Down, Left, Right };
+    enum Action { Up, Down, Left, Right, Reset };
+
     const qint8 maxStylesX=25;
     const qint8 maxStylesY=18;
+    const qint16 timeStep=100;
     explicit RenderArea(QWidget *parent = nullptr);
 
     QSize minimumSizeHint() const override;
@@ -81,15 +85,18 @@ protected:
     void setStyle(const qint8 x, const qint8 y, const Styles s);
     void paintEvent(QPaintEvent *event) override;
 
+    void reset();
+
 private:
+    QTimer *timer;
+
     QPixmap squareGreen;
     QPixmap squareGray;
     QPixmap squareEnding;
     QPixmap squareCar;
 
     QMap<QPair<qint8, qint8>, Styles> styles;
-    QPair<float, float> posVoiture;
-    float rotVoiture;
+    CarModel model;
 };
 //! [0]
 

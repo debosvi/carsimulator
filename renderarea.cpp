@@ -51,14 +51,14 @@
 #include "renderarea.h"
 
 #include <QDebug>
-#include <QtMath>
+#include <QTimer>
 #include <QPair>
 #include <QPainter>
 #include <QPainterPath>
 
 //! [0]
 RenderArea::RenderArea(QWidget *parent)
-    : QWidget(parent)
+    : QWidget(parent), model(this)
 {
     squareGreen.load(":/images/carre_vert.bmp");
     squareGray.load(":/images/carre_gris.bmp");
@@ -109,9 +109,8 @@ RenderArea::RenderArea(QWidget *parent)
     setStyle(18, maxStylesY-3, End);
 
     // position initiale voiture
-    posVoiture.first = 18.5f;
-    posVoiture.second = maxStylesY-2.5f;
-    rotVoiture=0;
+    reset();
+
 }
 //! [0]
 
@@ -169,10 +168,25 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
         }
     }
 
+    // MAJ model
+    model.update(timeStep);
+
     // dessine voiture
     painter.save();
-    painter.translate(32*posVoiture.first, 32*posVoiture.second);
-    painter.rotate(rotVoiture);
+    qfloat16 posX=model.getX();
+    qfloat16 posY=model.getY();
+    if(posX<0.0f)
+        posX=0.0f;
+    else if(posX>maxStylesX)
+        posX=maxStylesX;
+
+    if(posY<0.0f)
+        posY=0.0f;
+    else if(posY>maxStylesY)
+        posY=maxStylesY;
+
+    painter.translate(32*posX, 32*posY);
+    painter.rotate(model.getD());
     painter.drawPixmap(-squareCar.size().width()/2,-squareCar.size().height()/2, squareCar);
     painter.restore();
 
@@ -183,31 +197,32 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
 }
 //! [13]
 
-void RenderArea::doKey(const Action a) {
-    switch(a) {
-    case Up:
-    {
-        posVoiture.second-=0.1f;
-        float t=rotVoiture-10;
-        if (t<-90.0f)
-            rotVoiture=-90.0f;
-        else
-            rotVoiture=t;
+void RenderArea::reset() {
+    model.reset(18.5f, maxStylesY-2.0f);
+
+    if(!timer) {
+        timer = new QTimer(this);
+        timer->setInterval(timeStep);
+        connect(timer, SIGNAL(timeout()), this, SLOT(update()));
     }
-        break;
-    case Down:
-        posVoiture.second+=0.1f;
-        rotVoiture=90;
-        break;
-    case Right:
-        posVoiture.first+=0.1f;
-        rotVoiture=0;
-        break;
-    case Left:
-        posVoiture.first-=0.1f;
-        rotVoiture=180;
-        break;
-    default: break;
-    }
+    qDebug() << "stop timer";
+    timer->stop();
     update();
+}
+
+void RenderArea::doKey(const Action a) {
+    bool valid=true;
+    switch(a) {
+    case Up: model.accel(true); break;
+    case Down: model.accel(false); break;
+    case Left: model.rotate(true); break;
+    case Right: model.rotate(false); break;
+    case Reset: reset(); break;
+    default: valid=false; break;
+    }
+
+    if(valid) {
+        qDebug() << "start timer";
+        timer->start();
+    }
 }
