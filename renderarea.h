@@ -95,6 +95,9 @@ private:
     QPixmap squareEnding;
     QPixmap squareCar;
 
+    QList<qint64> times;
+    QList<QPair<qfloat16, qfloat16>> trails;
+
     QMap<QPair<qint8, qint8>, Styles> styles;
     CarModel model;
 };

@@ -52,13 +52,14 @@
 
 #include <QDebug>
 #include <QTimer>
+#include <QDateTime>
 #include <QPair>
 #include <QPainter>
 #include <QPainterPath>
 
 //! [0]
 RenderArea::RenderArea(QWidget *parent)
-    : QWidget(parent), model(this)
+    : QWidget(parent), timer(0), model(this)
 {
     squareGreen.load(":/images/carre_vert.bmp");
     squareGray.load(":/images/carre_gris.bmp");
@@ -171,10 +172,15 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
     // MAJ model
     model.update(timeStep);
 
-    // dessine voiture
-    painter.save();
     qfloat16 posX=model.getX();
     qfloat16 posY=model.getY();
+    qint64 now=QDateTime::currentDateTime().toMSecsSinceEpoch();
+    times.append(now);
+    QPair<qfloat16,qfloat16> p;
+    p.first = posX;
+    p.second = posY;
+    trails.append(p);
+
     if(posX<0.0f)
         posX=0.0f;
     else if(posX>maxStylesX)
@@ -185,6 +191,39 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
     else if(posY>maxStylesY)
         posY=maxStylesY;
 
+    p.first = 0;
+    p.second = 0;
+
+    // supprimevielles positions
+    while(true) {
+        qint64 t=times.at(0);
+//        qDebug() << "now: " << now/1000 << "times: " << t/1000;
+        if(now > (t + 10000)) {
+            times.removeFirst();
+            trails.removeFirst();
+        }
+        else break;
+    }
+
+    // dessine queue de position
+//    qDebug() << "trails size: " << times.size();
+    painter.save();
+    QPainterPath path;
+    for(int i=0; i<times.size(); i++) {
+        p=trails.at(i);
+        if(!i) {
+            path.moveTo(32*p.first, 32*p.second);
+        }
+        else {
+            path.lineTo(32*p.first, 32*p.second);
+        }
+    }
+    painter.setPen(QColor().black());
+    painter.drawPath(path);
+    painter.restore();
+
+    // dessine voiture
+    painter.save();
     painter.translate(32*posX, 32*posY);
     painter.rotate(model.getD());
     painter.drawPixmap(-squareCar.size().width()/2,-squareCar.size().height()/2, squareCar);
