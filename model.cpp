@@ -19,8 +19,8 @@ void CarModel::update(const int elapsed) {
     else if(speed<0.0f)
         speed+=1.0f;
 
-    qfloat16 stepX=(speed*elapsed/10000)*qCos(qDegreesToRadians(direction));
-    qfloat16 stepY=(speed*elapsed/10000)*qSin(qDegreesToRadians(direction));
+    qfloat16 stepX=(speed*elapsed/50000)*qCos(qDegreesToRadians(direction));
+    qfloat16 stepY=(speed*elapsed/50000)*qSin(qDegreesToRadians(direction));
     position.first+=stepX;
     position.second+=stepY;
 
